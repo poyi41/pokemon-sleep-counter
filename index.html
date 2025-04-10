@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>寶可夢睡眠計數器</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f8fa;
+            color: #333;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: #4dabf7;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .counter-group {
+            margin-bottom: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .counter-label {
+            padding: 10px 15px;
+            font-weight: bold;
+            background-color: #e9ecef;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .counter-actions {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+        .counter-display {
+            flex: 1;
+            font-size: 24px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background-color: #4dabf7;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 5px;
+        }
+        .btn:active {
+            background-color: #3793db;
+            transform: scale(0.95);
+        }
+        .btn-danger {
+            background-color: #ff8787;
+        }
+        .btn-danger:active {
+            background-color: #fa5252;
+        }
+        .stats-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #4dabf7;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 100;
+            overflow: auto;
+        }
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .action-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .action-button {
+            padding: 10px 15px;
+            background-color: #4dabf7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .add-counter {
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .add-counter input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+        }
+        .add-counter button {
+            padding: 10px 15px;
+            background-color: #4dabf7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .counter-tools {
+            margin-top: 5px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .tool-button {
+            background: none;
+            border: none;
+            color: #868e96;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 3px 8px;
+        }
+        .tool-button:hover {
+            color: #495057;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>寶可夢睡眠計數器</h1>
+        </div>
+        
+        <div id="counters-container">
+            <!-- 計數器將在這裡動態生成 -->
+        </div>
+        
+        <div class="add-counter">
+            <input type="text" id="new-counter-name" placeholder="輸入新計數器名稱（例如：烹飪爆擊）">
+            <button id="add-counter-btn">新增計數器</button>
+        </div>
+        
+        <button class="stats-button" id="show-stats">查看統計數據</button>
+    </div>
+    
+    <div id="stats-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>統計數據</h2>
+            <div id="stats-content">
+                <!-- 統計數據將在這裡顯示 -->
+            </div>
+            <div class="action-row">
+                <button class="action-button" id="reset-all">重置所有計數</button>
+                <button class="action-button" id="export-data">匯出數據</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 初始化計數器
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCounters();
+            
+            // 添加新計數器
+            document.getElementById('add-counter-btn').addEventListener('click', function() {
+                const counterName = document.getElementById('new-counter-name').value.trim();
+                if (counterName) {
+                    addCounter(counterName);
+                    document.getElementById('new-counter-name').value = '';
+                }
+            });
+            
+            // 統計模態框
+            const modal = document.getElementById('stats-modal');
+            document.getElementById('show-stats').addEventListener('click', function() {
+                showStats();
+                modal.style.display = 'block';
+            });
+            
+            document.querySelector('.close').addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // 重置所有計數
+            document.getElementById('reset-all').addEventListener('click', function() {
+                if (confirm('確定要重置所有計數嗎？')) {
+                    resetAllCounters();
+                }
+            });
+            
+            // 匯出數據
+            document.getElementById('export-data').addEventListener('click', function() {
+                exportData();
+            });
+        });
+        
+        // 載入計數器
+        function loadCounters() {
+            const counters = getCounters();
+            const container = document.getElementById('counters-container');
+            container.innerHTML = '';
+            
+            if (counters.length === 0) {
+                // 添加默認計數器
+                addCounter('烹飪爆擊');
+                addCounter('技能發動');
+                loadCounters();
+                return;
+            }
+            
+            counters.forEach(counter => {
+                addCounterToDOM(counter);
+            });
+        }
+        
+        // 從本地存儲獲取計數器
+        function getCounters() {
+            const countersJSON = localStorage.getItem('pokemonSleepCounters');
+            return countersJSON ? JSON.parse(countersJSON) : [];
+        }
+        
+        // 保存計數器到本地存儲
+        function saveCounters(counters) {
+            localStorage.setItem('pokemonSleepCounters', JSON.stringify(counters));
+        }
+        
+        // 添加新計數器
+        function addCounter(name) {
+            const counters = getCounters();
+            const newCounter = {
+                id: Date.now().toString(),
+                name: name,
+                count: 0,
+                date: new Date().toISOString().split('T')[0]
+            };
+            
+            counters.push(newCounter);
+            saveCounters(counters);
+            addCounterToDOM(newCounter);
+        }
+        
+        // 將計數器添加到DOM
+        function addCounterToDOM(counter) {
+            const container = document.getElementById('counters-container');
+            
+            const counterGroup = document.createElement('div');
+            counterGroup.className = 'counter-group';
+            counterGroup.setAttribute('data-id', counter.id);
+            
+            counterGroup.innerHTML = `
+                <div class="counter-label">${counter.name}</div>
+                <div class="counter-actions">
+                    <button class="btn btn-danger" onclick="decrementCounter('${counter.id}')">-</button>
+                    <div class="counter-display" id="count-${counter.id}">${counter.count}</div>
+                    <button class="btn" onclick="incrementCounter('${counter.id}')">+</button>
+                </div>
+                <div class="counter-tools">
+                    <button class="tool-button" onclick="resetCounter('${counter.id}')">重置</button>
+                    <button class="tool-button" onclick="removeCounter('${counter.id}')">刪除</button>
+                </div>
+            `;
+            
+            container.appendChild(counterGroup);
+        }
+        
+        // 增加計數
+        function incrementCounter(id) {
+            updateCounter(id, 1);
+        }
+        
+        // 減少計數
+        function decrementCounter(id) {
+            updateCounter(id, -1);
+        }
+        
+        // 更新計數器
+        function updateCounter(id, change) {
+            const counters = getCounters();
+            const counter = counters.find(c => c.id === id);
+            
+            if (counter) {
+                counter.count += change;
+                if (counter.count < 0) counter.count = 0;
+                
+                saveCounters(counters);
+                document.getElementById(`count-${id}`).textContent = counter.count;
+            }
+        }
+        
+        // 重置單個計數器
+        function resetCounter(id) {
+            if (confirm('確定要重置此計數器嗎？')) {
+                const counters = getCounters();
+                const counter = counters.find(c => c.id === id);
+                
+                if (counter) {
+                    counter.count = 0;
+                    saveCounters(counters);
+                    document.getElementById(`count-${id}`).textContent = '0';
+                }
+            }
+        }
+        
+        // 刪除計數器
+        function removeCounter(id) {
+            if (confirm('確定要刪除此計數器嗎？')) {
+                const counters = getCounters();
+                const updatedCounters = counters.filter(c => c.id !== id);
+                
+                saveCounters(updatedCounters);
+                const element = document.querySelector(`.counter-group[data-id="${id}"]`);
+                if (element) element.remove();
+            }
+        }
+        
+        // 重置所有計數器
+        function resetAllCounters() {
+            const counters = getCounters();
+            
+            counters.forEach(counter => {
+                counter.count = 0;
+            });
+            
+            saveCounters(counters);
+            loadCounters();
+        }
+        
+        // 顯示統計
+        function showStats() {
+            const counters = getCounters();
+            const statsContent = document.getElementById('stats-content');
+            
+            let statsHTML = '';
+            counters.forEach(counter => {
+                statsHTML += `
+                <div class="stat-item">
+                    <span>${counter.name}</span>
+                    <span>${counter.count}</span>
+                </div>
+                `;
+            });
+            
+            statsContent.innerHTML = statsHTML || '<p>尚無統計數據</p>';
+        }
+        
+        // 匯出數據
+        function exportData() {
+            const counters = getCounters();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(counters, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "pokemon_sleep_stats.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+    </script>
+</body>
+</html>
